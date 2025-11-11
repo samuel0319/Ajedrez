@@ -1,14 +1,10 @@
 package main.java.vistas;
 
-import main.java.Piezas.Fen;
-
-
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.*;
+import main.java.Piezas.*;
 
 public class VistaFen extends JFrame {
 
@@ -23,7 +19,7 @@ public class VistaFen extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
-        // --- Panel superior ---
+        // Panel superior
         JPanel panelSuperior = new JPanel(new BorderLayout(5, 5));
         JLabel lbl = new JLabel("Introduce la notación FEN:");
         inputFen = new JTextField();
@@ -33,48 +29,21 @@ public class VistaFen extends JFrame {
         panelSuperior.add(btnMostrar, BorderLayout.EAST);
         add(panelSuperior, BorderLayout.NORTH);
 
-        // --- Panel del tablero ---
+        // Panel del tablero
         tableroPanel = new JPanel(new GridLayout(8, 8));
         add(tableroPanel, BorderLayout.CENTER);
 
-        // --- Acción del botón ---
-        btnMostrar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String fenCompleto = inputFen.getText().trim();
-
-                if (fenCompleto.isEmpty()) {
-                    JOptionPane.showMessageDialog(null,
-                            "Por favor ingresa una cadena FEN.",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                String[] partes = fenCompleto.split(" ");
-                if (partes.length < 6) {
-                    JOptionPane.showMessageDialog(null,
-                            "Error: la cadena FEN no tiene las 6 partes requeridas.",
-                            "Error FEN",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                String posiciones = partes[0];
-
-                // 🔁 Usamos tu clase Fen
-                String tableroPlano = Fen.generarTablero(posiciones);
-
-                // Mostrar el tablero visualmente
-                mostrarTableroGraficamente(tableroPlano);
-            }
+        // Acción del botón llamando a Fen para la logica
+        btnMostrar.addActionListener(e -> {
+            Fen.manejarFen(inputFen.getText().trim(), VistaFen.this);
         });
     }
 
-    private void mostrarTableroGraficamente(String tableroPlano) {
-        tableroPanel.removeAll();
+// Da forma al tablero, color y se encarga de leer la informacion de Fen para poder poner imagenes de las piezas
+    public void mostrarTableroGraficamente(String tableroPlano) {
+        tableroPanel.removeAll(); // quita el tablero ya creado por uno nuevo
         Map<Character, String> piezas = obtenerPiezasUnicode();
-
+// recorre todo el texto para poder colocar las piezas
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 char simbolo = tableroPlano.charAt(i * 8 + j);
@@ -82,13 +51,13 @@ public class VistaFen extends JFrame {
                 JLabel etiqueta = new JLabel("", SwingConstants.CENTER);
                 etiqueta.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 40));
 
-                // Color de casilla
+                // Colores del tablero
                 if ((i + j) % 2 == 0)
                     casilla.setBackground(new Color(240, 217, 181)); // claro
                 else
                     casilla.setBackground(new Color(181, 136, 99)); // oscuro
 
-                // Poner pieza si existe
+                // Colocar pieza si existe
                 if (simbolo != '.') {
                     etiqueta.setText(piezas.getOrDefault(simbolo, String.valueOf(simbolo)));
                 }
@@ -101,8 +70,7 @@ public class VistaFen extends JFrame {
         tableroPanel.revalidate();
         tableroPanel.repaint();
     }
-
-    // 🔣 Diccionario de piezas Unicode
+// informacion para poder colocar las figuras en las casillas correspondientes
     private Map<Character, String> obtenerPiezasUnicode() {
         Map<Character, String> mapa = new HashMap<>();
         mapa.put('K', "♔");
@@ -111,7 +79,6 @@ public class VistaFen extends JFrame {
         mapa.put('B', "♗");
         mapa.put('N', "♘");
         mapa.put('P', "♙");
-
         mapa.put('k', "♚");
         mapa.put('q', "♛");
         mapa.put('r', "♜");
